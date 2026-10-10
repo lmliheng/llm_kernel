@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llm_kernel"
+version = "0.1.0"
+description = "Tensor math, machine learning, deep learning and model inference helpers: reusable functions and best practices."
+readme = "README.md"
+requires-python = ">=3.9"
+authors = [{ name = "lmliheng" }]
+keywords = [
+    "llm",
+    "tensor",
+    "machine-learning",
+    "deep-learning",
+    "numpy",
+]
+dependencies = ["numpy>=1.20"]
+
+[project.optional-dependencies]
+plot = ["matplotlib>=3.5"]
+
+[project.urls]
+Homepage = "https://github.com/lmliheng/llm_kernel"
+Repository = "https://github.com/lmliheng/llm_kernel"
+Issues = "https://github.com/lmliheng/llm_kernel/issues"
+
+[tool.setuptools.packages.find]
+include = ["llm_kernel*"]
