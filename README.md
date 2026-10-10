@@ -68,10 +68,17 @@ pip install -e ".[plot]"
 
 ## 发布 / Release
 
-发布走 GitHub Actions 的 PyPI 可信发布（Trusted Publishing），无需在仓库里存 token：
-在 GitHub 上创建 Release（例如标签 `v0.1.0`）即触发 `.github/workflows/publish.yml`，
-构建 sdist/wheel 并上传到 PyPI。
+发布走 GitHub Actions（`.github/workflows/publish.yml`）：在 GitHub 上创建 Release（例如标签
+`v0.1.0`），或在 Actions 页面手动触发该 workflow，即构建 sdist/wheel、安装 wheel 冒烟测试并上传 PyPI。
 
-Publishing uses PyPI Trusted Publishing through GitHub Actions, so no API token is stored
-in the repository: creating a GitHub Release (e.g. tag `v0.1.0`) triggers
-`.github/workflows/publish.yml`, which builds the sdist/wheel and uploads it to PyPI.
+认证二选一，工作流两种都支持：
+
+- 仓库 secret `PYPI_API_TOKEN`：配置了就优先用它上传；
+- 不配置该 secret：自动走 OIDC 可信发布（Trusted Publishing），需要在 PyPI 上为该
+  repository / workflow 注册发布者。
+
+Publishing runs through GitHub Actions (`.github/workflows/publish.yml`): create a GitHub
+Release (e.g. tag `v0.1.0`) or trigger the workflow manually, and it builds the sdist/wheel,
+smoke-tests the wheel and uploads it to PyPI. It authenticates with the `PYPI_API_TOKEN`
+repository secret when that secret exists, and otherwise falls back to OIDC trusted
+publishing.
