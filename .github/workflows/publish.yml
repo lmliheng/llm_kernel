@@ -58,3 +58,7 @@ jobs:
 
       - name: Publish release distributions to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          # 仓库配了 PYPI_API_TOKEN secret 就用它上传；没有配置时这里为空，
+          # action 会自动改走 OIDC 可信发布。
+          password: ${{ secrets.PYPI_API_TOKEN }}
