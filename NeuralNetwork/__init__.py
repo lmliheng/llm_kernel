@@ -4,4 +4,6 @@
 
 from .softmax import softmax
 from .accuracy import accuracy
-from .cross_entropy import cross_entropy
+from .loss import cross_entropy_loss,squared_loss
+from .ActiveFunction import relu
+from .updater import sgd
