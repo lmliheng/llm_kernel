@@ -42,6 +42,10 @@ jobs:
 
       - name: 配置 Pages
         uses: actions/configure-pages@v5
+        with:
+          # 仓库还没启用 Pages 时顺手启用它（需要 pages: write 权限，已在上面声明）。
+          # 万一没权限，去 Settings → Pages → Source 选 "GitHub Actions" 即可。
+          enablement: true
 
       # --strict：链接写错、页面没进导航等任何警告都会让构建失败。
       - name: 构建（mkdocs build --strict）
