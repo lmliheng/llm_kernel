@@ -33,6 +33,13 @@ pytest -k normal
 CI 见 `.github/workflows/tests.yml`：Python 3.9 / 3.12 / 3.13 三个版本跑基础测试，
 另有一个任务装 torch 跑 `nn` 的完整用例。
 
+!!! note "3.9 为什么单独钉在 ubuntu-24.04"
+    `ubuntu-latest` 现在是 Ubuntu 26.04，而 `actions/setup-python` 的版本清单里
+    Python 3.9 只提供到 24.04，在 26.04 上会报
+    `The version '3.9' ... was not found for Ubuntu 26.04`。
+    所以 3.9 那一格显式指定 `ubuntu-24.04`；等不再支持 3.9 时，把 `requires-python`
+    抬到 `>=3.10` 并删掉这一格即可。
+
 ## 构建校验（别跳过）
 
 ```bash

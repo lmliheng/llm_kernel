@@ -11,12 +11,21 @@ permissions:
 
 jobs:
   tests:
-    name: 基础测试 Python ${{ matrix.python-version }}
-    runs-on: ubuntu-latest
+    name: 基础测试 Python ${{ matrix.python-version }}（${{ matrix.os }}）
+    runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.9", "3.12", "3.13"]
+        # ubuntu-latest 现在是 Ubuntu 26.04，而 setup-python 的版本清单里
+        # Python 3.9 只提供到 24.04（在 26.04 上会报 "was not found for Ubuntu 26.04"），
+        # 所以 3.9 单独钉在仍然提供它的 ubuntu-24.04 上。
+        include:
+          - python-version: "3.9"
+            os: ubuntu-24.04
+          - python-version: "3.12"
+            os: ubuntu-latest
+          - python-version: "3.13"
+            os: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
