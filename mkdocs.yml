@@ -1,0 +1,68 @@
+site_name: llm_kernel
+site_description: 张量计算、机器学习、深度学习与模型训练推理的可复用函数与最佳实践
+site_url: https://lmliheng.github.io/llm_kernel/
+repo_url: https://github.com/lmliheng/llm_kernel
+repo_name: lmliheng/llm_kernel
+edit_uri: edit/main/docs/
+copyright: MIT License © 2026 lmliheng
+
+theme:
+  name: material
+  language: zh
+  features:
+    - navigation.sections
+    - navigation.top
+    - content.code.copy
+    - search.suggest
+    - toc.follow
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      toggle:
+        icon: material/weather-night
+        name: 切换到深色
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      toggle:
+        icon: material/weather-sunny
+        name: 切换到浅色
+
+nav:
+  - 首页: index.md
+  - 指南:
+      - 安装与上手: guide/install.md
+      - API 设计说明: guide/design.md
+      - 从 0.1.x 迁移: guide/migration.md
+      - 开发与发布: guide/develop.md
+  - API 参考:
+      - math：数学与概率: api/math.md
+      - nn：神经网络: api/nn.md
+      - performance：计时: api/performance.md
+      - plot：可视化: api/plot.md
+      - deps：依赖检查: api/deps.md
+      - d2l：内置的 d2l 副本: api/d2l.md
+  - 变更日志: changelog.md
+
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          options:
+            docstring_style: google
+            show_source: false
+            members_order: source
+            filters: ["!^_"]
+            merge_init_into_class: true
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - toc:
+      permalink: true
+  - pymdownx.highlight
+  - pymdownx.superfences
+  - pymdownx.details
+  - pymdownx.tabbed:
+      alternate_style: true

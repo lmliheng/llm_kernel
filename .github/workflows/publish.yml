@@ -10,6 +10,7 @@ permissions:
 
 jobs:
   release-build:
+    name: 构建并自检
     runs-on: ubuntu-latest
 
     steps:
@@ -19,26 +20,52 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Upgrade pip and install build
+      - name: 安装构建工具
         run: |
-          python -m pip install --upgrade pip setuptools wheel
-          python -m pip install --upgrade build
+          python -m pip install --upgrade pip
+          python -m pip install --upgrade build twine
 
-      - name: Build release distributions
-        run: |
-          python -m build
+      - name: 构建 sdist 与 wheel
+        run: python -m build
 
-      - name: Smoke test the built wheel
+      - name: 检查元数据
+        run: twine check dist/*
+
+      # twine check 通过不代表 wheel 里有代码：曾经出现过只含 dist-info 的"空包"
+      # 也能 PASSED、也能装成功，装完 import 才报 ModuleNotFoundError。
+      - name: 确认 wheel 里真的有 llm_kernel 包
         run: |
-          python -m pip install dist/*.whl
-   
-      - name: Upload distributions
+          python -m zipfile -l dist/*.whl
+          python -m zipfile -l dist/*.whl | grep -q "llm_kernel/__init__.py"
+
+      # 换到临时目录再 import，避免 cwd 下的源码冒充安装好的包。
+      - name: 装进干净环境并 import 一次
+        run: |
+          cd "$RUNNER_TEMP"
+          python -m pip install "$GITHUB_WORKSPACE"/dist/*.whl
+          python -c "import llm_kernel; print('版本:', llm_kernel.__version__); print(llm_kernel.math.normal(0.0))"
+          python -c "import llm_kernel.nn, llm_kernel.plot, llm_kernel.deps; print('子模块导入正常（不需要 torch / matplotlib）')"
+
+      - name: 校验 tag 与 __version__ 一致
+        if: github.event_name == 'release'
+        run: |
+          cd "$RUNNER_TEMP"
+          tag="${GITHUB_REF_NAME#v}"
+          version=$(python -c "import llm_kernel; print(llm_kernel.__version__)")
+          if [ "$tag" != "$version" ]; then
+            echo "::error::tag v$tag 与 llm_kernel.__version__ ($version) 不一致，先改版本号再发"
+            exit 1
+          fi
+          echo "tag 与 __version__ 一致：$version"
+
+      - name: 上传发行物
         uses: actions/upload-artifact@v4
         with:
           name: release-dists
           path: dist/
 
   pypi-publish:
+    name: 上传到 PyPI
     runs-on: ubuntu-latest
     needs:
       - release-build
@@ -51,15 +78,15 @@ jobs:
       url: https://pypi.org/p/llm_kernel
 
     steps:
-      - name: Retrieve release distributions
+      - name: 取回发行物
         uses: actions/download-artifact@v4
         with:
           name: release-dists
           path: dist/
 
-      - name: Publish release distributions to PyPI
+      - name: 发布到 PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
-          # 仓库配了 PYPI_API_TOKEN secret 就用它上传；没有配置时这里为空，
-          # action 会自动改走 OIDC 可信发布。
+          # 仓库配了 PYPI_API_TOKEN secret 就用它上传；没有配置时这里为空字符串，
+          # action 会自动改走 OIDC 可信发布（需要在 PyPI 上登记本仓库的发布者）。
           password: ${{ secrets.PYPI_API_TOKEN }}
