@@ -1,0 +1,63 @@
+name: Docs
+
+# 部署到 https://lmliheng.github.io/llm_kernel/
+# 注意：GitHub Pages 的部署只允许从默认分支触发，所以这个工作流要在 main 上才生效；
+# 首次还需要在仓库 Settings → Pages → Source 里选择 "GitHub Actions"。
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "docs/**"
+      - "llm_kernel/**"
+      - "mkdocs.yml"
+      - "README.md"
+      - ".github/workflows/docs.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: 构建文档
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: 安装文档依赖
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[docs]"
+
+      - name: 配置 Pages
+        uses: actions/configure-pages@v5
+
+      # --strict：链接写错、页面没进导航等任何警告都会让构建失败。
+      - name: 构建（mkdocs build --strict）
+        run: mkdocs build --strict
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+  deploy:
+    name: 部署到 GitHub Pages
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

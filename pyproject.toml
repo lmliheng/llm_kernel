@@ -1,30 +1,82 @@
 [build-system]
-requires = ["setuptools>=68"]
+requires = ["setuptools>=77"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "llm_kernel"
-version = "0.1.0"
+# 版本号只有一个来源：llm_kernel/__init__.py 里的 __version__。
+# 这样不会出现 pyproject 和代码写法不一致（0.1.0 / 0.1.1）的情况。
+dynamic = ["version"]
 description = "Tensor math, machine learning, deep learning and model inference helpers: reusable functions and best practices."
 readme = "README.md"
 requires-python = ">=3.9"
-authors = [{ name = "lmliheng" }]
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{ name = "lmliheng", email = "liheng2137@126.com" }]
 keywords = [
     "llm",
     "tensor",
     "machine-learning",
     "deep-learning",
     "numpy",
+    "pytorch",
+    "d2l",
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Education",
+    "Intended Audience :: Science/Research",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Typing :: Typed",
+    "Operating System :: OS Independent",
 ]
 dependencies = ["numpy>=1.20"]
 
+# 可选依赖：核心只依赖 numpy，torch / matplotlib 按需装。
+# deps.require() 报错时给出的安装命令就是这里的 extra 名。
 [project.optional-dependencies]
+nn = ["torch>=2.0"]
 plot = ["matplotlib>=3.5"]
+d2l = [
+    "torch>=2.0",
+    "torchvision",
+    "pandas",
+    "requests",
+    "ipython",
+    "matplotlib>=3.5",
+    "matplotlib-inline",
+]
+dev = ["pytest>=7", "build", "twine"]
+docs = ["mkdocs-material>=9.5", "mkdocstrings[python]>=0.26"]
 
 [project.urls]
 Homepage = "https://github.com/lmliheng/llm_kernel"
 Repository = "https://github.com/lmliheng/llm_kernel"
 Issues = "https://github.com/lmliheng/llm_kernel/issues"
+Documentation = "https://lmliheng.github.io/llm_kernel/"
+Changelog = "https://github.com/lmliheng/llm_kernel/blob/main/docs/changelog.md"
 
+[tool.setuptools.dynamic]
+version = { attr = "llm_kernel.__version__" }
+
+# 扁平布局改成了 llm_kernel/ 目录，include 才真的找得到包。
+# 发布前务必确认构建产物的内容：python -m build && python -m zipfile -l dist/*.whl
 [tool.setuptools.packages.find]
 include = ["llm_kernel*"]
+
+[tool.setuptools.package-data]
+llm_kernel = ["py.typed"]
+
+[tool.setuptools.exclude-package-data]
+"*" = ["__pycache__/*", "*.pyc", "*.pyo"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q --strict-markers"

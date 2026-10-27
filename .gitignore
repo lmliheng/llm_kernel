@@ -1,7 +1,18 @@
+# 构建产物
+dist/
+build/
+*.egg-info/
+
+# Python 缓存
 __pycache__/
 *.py[cod]
-*.egg-info/
-build/
-dist/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# 虚拟环境
 .venv/
 venv/
+
+# 文档构建产物（mkdocs build 输出，由 GitHub Pages 工作流生成）
+site/
