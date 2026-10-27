@@ -205,8 +205,11 @@ def get_dataloader_workers():
     Defined in :numref:`sec_fashion_mnist`"""
     return 4
 
-def load_data_fashion_mnist(batch_size, resize=None):
+def load_data_fashion_mnist(batch_size, resize=None, worker: int = 0):
     """下载Fashion-MNIST数据集，然后将其加载到内存中
+
+    ``worker`` 是 ``DataLoader`` 的读取子进程数，默认 0（在主进程里读）。
+    Windows 上多进程读取容易卡住，需要并行时再显式传入。
 
     Defined in :numref:`sec_fashion_mnist`"""
     trans = [transforms.ToTensor()]
@@ -218,9 +221,9 @@ def load_data_fashion_mnist(batch_size, resize=None):
     mnist_test = torchvision.datasets.FashionMNIST(
         root="../data", train=False, transform=trans, download=True)
     return (data.DataLoader(mnist_train, batch_size, shuffle=True,
-                            num_workers=get_dataloader_workers()),
+                            num_workers=worker),
             data.DataLoader(mnist_test, batch_size, shuffle=False,
-                            num_workers=get_dataloader_workers()))
+                            num_workers=worker))
 
 def accuracy(y_hat, y):
     """计算预测正确的数量
